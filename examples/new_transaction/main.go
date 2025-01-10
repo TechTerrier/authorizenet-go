@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/hanzoai/authorizenet-go"
+	"github.com/techterrier/authorizenet-go"
 	"os"
 )
 
