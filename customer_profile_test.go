@@ -1,7 +1,7 @@
 package authorizenet
 
 import (
-	"math/rand"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -14,13 +14,11 @@ var newSecondCustomerProfileId string
 var client Client
 
 func init() {
-	rand.Seed(time.Now().UnixNano())
 }
 
 func TestSetAPIInfo(t *testing.T) {
-	apiName := os.Getenv("apiName")
-	apiKey := os.Getenv("apiKey")
-	//apiMode := os.Getenv("mode")
+	apiName := os.Getenv("API_NAME")
+	apiKey := os.Getenv("API_KEY")
 	client = *New(apiName, apiKey, true)
 	t.Log("API Info Set")
 }
@@ -36,6 +34,8 @@ func TestIsConnected(t *testing.T) {
 }
 
 func TestCreateCustomerProfile(t *testing.T) {
+	nextMonthDate := time.Now().AddDate(0, 1, 0)
+	expiration := fmt.Sprintf("%s/%s", nextMonthDate.Format("01"), nextMonthDate.Format("06"))
 
 	customer := Profile{
 		MerchantCustomerID: RandomNumber(1000, 9999),
@@ -45,7 +45,7 @@ func TestCreateCustomerProfile(t *testing.T) {
 			Payment: Payment{
 				CreditCard: CreditCard{
 					CardNumber:     "4007000000027",
-					ExpirationDate: "10/26",
+					ExpirationDate: expiration,
 					//CardCode: "384",
 				},
 			},
@@ -55,6 +55,7 @@ func TestCreateCustomerProfile(t *testing.T) {
 	res, err := customer.CreateProfile(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if res.Ok() {
@@ -93,6 +94,7 @@ func TestUpdateCustomerProfile(t *testing.T) {
 	res, err := customer.UpdateProfile(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if res.Ok() {
@@ -105,6 +107,9 @@ func TestUpdateCustomerProfile(t *testing.T) {
 }
 
 func TestCreateCustomerPaymentProfile(t *testing.T) {
+
+	nextMonthDate := time.Now().AddDate(0, 1, 0)
+	expiration := fmt.Sprintf("%s/%s", nextMonthDate.Format("01"), nextMonthDate.Format("06"))
 
 	paymentProfile := CustomerPaymentProfile{
 		CustomerProfileID: newCustomerProfileId,
@@ -120,7 +125,7 @@ func TestCreateCustomerPaymentProfile(t *testing.T) {
 			Payment: &Payment{
 				CreditCard: CreditCard{
 					CardNumber:     "5424000000000015",
-					ExpirationDate: "04/22",
+					ExpirationDate: expiration,
 				},
 			},
 			DefaultPaymentProfile: "true",
@@ -130,6 +135,7 @@ func TestCreateCustomerPaymentProfile(t *testing.T) {
 	res, err := paymentProfile.Add(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if res.Ok() {
@@ -151,6 +157,7 @@ func TestGetCustomerPaymentProfile(t *testing.T) {
 	res, err := customer.Info(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	paymentProfiles := res.PaymentProfiles()
@@ -168,6 +175,7 @@ func TestGetCustomerPaymentProfileList(t *testing.T) {
 	profileIds, err := client.GetPaymentProfileIds("2020-03", "cardsExpiringInMonth")
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	t.Log(profileIds)
@@ -183,6 +191,7 @@ func TestValidateCustomerPaymentProfile(t *testing.T) {
 	res, err := customerProfile.Validate(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if res.Ok() {
@@ -195,6 +204,8 @@ func TestValidateCustomerPaymentProfile(t *testing.T) {
 }
 
 func TestUpdateCustomerPaymentProfile(t *testing.T) {
+	nextMonthDate := time.Now().AddDate(0, 1, 0)
+	expiration := fmt.Sprintf("%s/%s", nextMonthDate.Format("01"), nextMonthDate.Format("06"))
 
 	customer := Profile{
 		CustomerProfileId: newCustomerProfileId,
@@ -205,7 +216,7 @@ func TestUpdateCustomerPaymentProfile(t *testing.T) {
 			Payment: Payment{
 				CreditCard: CreditCard{
 					CardNumber:     "4007000000027",
-					ExpirationDate: "01/26",
+					ExpirationDate: expiration,
 				},
 			},
 			BillTo: &BillTo{
@@ -223,6 +234,7 @@ func TestUpdateCustomerPaymentProfile(t *testing.T) {
 	res, err := customer.UpdatePaymentProfile(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if res.Ok() {
@@ -256,6 +268,7 @@ func TestCreateCustomerShippingProfile(t *testing.T) {
 	res, err := customer.CreateShipping(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if res.Ok() {
@@ -276,6 +289,7 @@ func TestGetCustomerShippingProfile(t *testing.T) {
 	res, err := customer.Info(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	shippingProfiles := res.ShippingProfiles()
@@ -309,6 +323,7 @@ func TestUpdateCustomerShippingProfile(t *testing.T) {
 	res, err := customer.UpdateShippingProfile(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if res.Ok() {
@@ -349,9 +364,15 @@ func TestCreateSubscriptionCustomerProfile(t *testing.T) {
 		},
 	}
 
+	// A delay is needed as this request is dependent on multiple other requests.
+	// Data from other requests (IDs above) need some time to propagate to all Authorize.net datacenters.
+	// https://community.developer.cybersource.com/t5/Integration-and-Testing/quot-E00040-The-record-cannot-be-found-quot-when-creating/td-p/62409
+	time.Sleep(60 * time.Second)
+
 	res, err := subscription.Charge(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if res.Approved() {
@@ -361,7 +382,6 @@ func TestCreateSubscriptionCustomerProfile(t *testing.T) {
 		t.Log(res.ErrorMessage(), "\n")
 		t.Fail()
 	}
-
 }
 
 func TestGetCustomerProfile(t *testing.T) {
@@ -373,6 +393,7 @@ func TestGetCustomerProfile(t *testing.T) {
 	res, err := customer.Info(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	paymentProfiles := res.PaymentProfiles()

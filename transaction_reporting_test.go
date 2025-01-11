@@ -80,8 +80,27 @@ func TestGetUnSettledBatchList(t *testing.T) {
 
 func TestGetBatchStatistics(t *testing.T) {
 
+	// Prepare to get a batch ID.
+	searchList := Range{
+		Start: LastWeek(),
+		End:   Now(),
+	}
+	batches, err := searchList.SettledBatch(client)
+	if err != nil {
+		t.Log("Failed to get batches.")
+		t.Log(err)
+		t.Fail()
+	}
+
+	batchList := batches.List()
+
+	if len(batchList) == 0 {
+		t.Log("There are no batches to get statistics on.")
+		return
+	}
+
 	list := Range{
-		BatchId: "6933560",
+		BatchId: batchList[0].BatchID, // Use the first batch ID provided.
 	}
 
 	batch, err := list.Statistics(client)
@@ -107,6 +126,5 @@ func TestGetMerchantDetails(t *testing.T) {
 	}
 
 	t.Log("Test Mode: ", info.IsTestMode, "\n")
-	t.Log("Merchant Name: ", info.MerchantName, "\n")
 	t.Log("Gateway ID: ", info.GatewayID, "\n")
 }

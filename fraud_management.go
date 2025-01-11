@@ -12,6 +12,9 @@ func (c Client) UnsettledBatchList() (*TransactionsList, error) {
 
 func (input TransactionsList) List(c Client) ([]BatchTransaction, error) {
 	res, err := c.SendGetUnsettled()
+	if err != nil {
+		return []BatchTransaction{}, err
+	}
 	return res.Transactions, err
 }
 
@@ -76,7 +79,7 @@ func (c Client) SendTransactionUpdate(tranx PreviousTransaction, method string) 
 	action := UpdateHeldTransactionRequest{
 		UpdateHeldTransaction: UpdateHeldTransaction{
 			MerchantAuthentication: c.GetAuthentication(),
-			RefID: tranx.RefId,
+			RefID:                  tranx.RefId,
 			HeldTransactionRequest: HeldTransactionRequest{
 				Action:     method,
 				RefTransID: tranx.RefId,

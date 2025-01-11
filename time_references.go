@@ -8,7 +8,7 @@ func Now() time.Time {
 }
 
 func LastWeek() time.Time {
-	t := time.Now().UTC().AddDate(0, 0, -1)
+	t := time.Now().UTC().AddDate(0, 0, -7)
 	return t
 }
 
@@ -23,8 +23,8 @@ func LastYear() time.Time {
 }
 
 func CurrentDate() string {
-	current_time := time.Now().UTC()
-	return current_time.Format("2006-01-02")
+	currentTime := time.Now().UTC()
+	return currentTime.Format("2006-01-02")
 }
 
 func IntervalMonthly() Interval {
