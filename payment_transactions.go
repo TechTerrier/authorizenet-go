@@ -2,26 +2,28 @@ package authorizenet
 
 import (
 	"encoding/json"
+	"log"
 )
 
 func (tranx NewTransaction) Charge(c Client) (*TransactionResponse, error) {
-	var new TransactionRequest
-	new = TransactionRequest{
+	var newTransactionRequest TransactionRequest
+	newTransactionRequest = TransactionRequest{
 		TransactionType: "authCaptureTransaction",
 		Amount:          tranx.Amount,
 		Payment: &Payment{
 			CreditCard: tranx.CreditCard,
 		},
 		BillTo:   tranx.BillTo,
+		ShipTo:   tranx.ShipTo,
 		AuthCode: tranx.AuthCode,
 	}
-	res, err := c.SendTransactionRequest(new)
+	res, err := c.SendTransactionRequest(newTransactionRequest)
 	return res, err
 }
 
 func (tranx NewTransaction) ChargeProfile(profile Customer, c Client) (*TransactionResponse, error) {
-	var new TransactionRequest
-	new = TransactionRequest{
+	var newTransactionRequest TransactionRequest
+	newTransactionRequest = TransactionRequest{
 		TransactionType: "authCaptureTransaction",
 		Amount:          tranx.Amount,
 		Profile: &Profile{
@@ -31,26 +33,26 @@ func (tranx NewTransaction) ChargeProfile(profile Customer, c Client) (*Transact
 			},
 		},
 	}
-	res, err := c.SendTransactionRequest(new)
+	res, err := c.SendTransactionRequest(newTransactionRequest)
 	return res, err
 }
 
 func (tranx NewTransaction) AuthOnly(c Client) (*TransactionResponse, error) {
-	var new TransactionRequest
-	new = TransactionRequest{
+	var newTransactionRequest TransactionRequest
+	newTransactionRequest = TransactionRequest{
 		TransactionType: "authOnlyTransaction",
 		Amount:          tranx.Amount,
 		Payment: &Payment{
 			CreditCard: tranx.CreditCard,
 		},
 	}
-	res, err := c.SendTransactionRequest(new)
+	res, err := c.SendTransactionRequest(newTransactionRequest)
 	return res, err
 }
 
 func (tranx NewTransaction) Refund(c Client) (*TransactionResponse, error) {
-	var new TransactionRequest
-	new = TransactionRequest{
+	var newTransactionRequest TransactionRequest
+	newTransactionRequest = TransactionRequest{
 		TransactionType: "refundTransaction",
 		Amount:          tranx.Amount,
 		RefTransId:      tranx.RefTransId,
@@ -58,27 +60,27 @@ func (tranx NewTransaction) Refund(c Client) (*TransactionResponse, error) {
 			CreditCard: tranx.CreditCard,
 		},
 	}
-	res, err := c.SendTransactionRequest(new)
+	res, err := c.SendTransactionRequest(newTransactionRequest)
 	return res, err
 }
 
 func (tranx PreviousTransaction) Void(c Client) (*TransactionResponse, error) {
-	var new TransactionRequest
-	new = TransactionRequest{
+	var newTransactionRequest TransactionRequest
+	newTransactionRequest = TransactionRequest{
 		TransactionType: "voidTransaction",
 		RefTransId:      tranx.RefId,
 	}
-	res, err := c.SendTransactionRequest(new)
+	res, err := c.SendTransactionRequest(newTransactionRequest)
 	return res, err
 }
 
 func (tranx PreviousTransaction) Capture(c Client) (*TransactionResponse, error) {
-	var new TransactionRequest
-	new = TransactionRequest{
+	var newTransactionRequest TransactionRequest
+	newTransactionRequest = TransactionRequest{
 		TransactionType: "priorAuthCaptureTransaction",
 		RefTransId:      tranx.RefId,
 	}
-	res, err := c.SendTransactionRequest(new)
+	res, err := c.SendTransactionRequest(newTransactionRequest)
 	return res, err
 }
 
@@ -118,10 +120,12 @@ func (c Client) SendTransactionRequest(input TransactionRequest) (*TransactionRe
 		},
 	}
 	req, err := json.Marshal(action)
+
 	if err != nil {
 		return nil, err
 	}
 	res, err := c.SendRequest(req)
+	log.Println("Response: " + string(res))
 	var dat TransactionResponse
 	err = json.Unmarshal(res, &dat)
 	if err != nil {
@@ -137,6 +141,7 @@ type NewTransaction struct {
 	CreditCard CreditCard `json:"payment,omitempty"`
 	AuthCode   string     `json:"authCode,omitempty"`
 	BillTo     *BillTo    `json:",omitempty"`
+	ShipTo     *Address   `json:"shipTo,omitempty"`
 }
 
 type PreviousTransaction struct {
@@ -150,7 +155,7 @@ type TransactionResponse struct {
 }
 
 type TranxResponse struct {
-	ResponseCode   string `json:"resCode"`
+	ResponseCode   string `json:"responseCode"`
 	AuthCode       string `json:"authCode"`
 	AvsResultCode  string `json:"avsResultCode"`
 	CvvResultCode  string `json:"cvvResultCode"`

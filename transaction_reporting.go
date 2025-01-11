@@ -6,11 +6,11 @@ import (
 )
 
 type Range struct {
-	Start   time.Time `"omitempty"`
-	End     time.Time `"omitempty"`
-	BatchId string    `"omitempty"`
-	Sorting Sorting   `"omitempty"`
-	Paging  Paging    `"omitempty"`
+	Start   time.Time `json:"start,omitempty"`
+	End     time.Time `json:"end,omitempty"`
+	BatchId string    `json:"batchId,omitempty"`
+	Sorting Sorting   `json:"sorting,omitempty"`
+	Paging  Paging    `json:"paging,omitempty"`
 }
 
 func (r BatchListResponse) List() []BatchList {
@@ -18,7 +18,7 @@ func (r BatchListResponse) List() []BatchList {
 }
 
 func (r Range) SettledBatch(c Client) (*BatchListResponse, error) {
-	new := GetSettledBatchListRequest{
+	newRequest := GetSettledBatchListRequest{
 		GetSettledBatchList: GetSettledBatchList{
 			MerchantAuthentication: c.GetAuthentication(),
 			IncludeStatistics:      "true",
@@ -26,7 +26,7 @@ func (r Range) SettledBatch(c Client) (*BatchListResponse, error) {
 			LastSettlementDate:     r.End,
 		},
 	}
-	req, err := json.Marshal(new)
+	req, err := json.Marshal(newRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -37,12 +37,12 @@ func (r Range) SettledBatch(c Client) (*BatchListResponse, error) {
 }
 
 func (c Client) UnSettledBatch() (*UnsettledTransactionListResponse, error) {
-	new := GetUnsettledBatchTransactionListRequest{
+	newRequest := GetUnsettledBatchTransactionListRequest{
 		GetUnsettledTransactionList: GetUnsettledTransactionList{
 			MerchantAuthentication: c.GetAuthentication(),
 		},
 	}
-	req, err := json.Marshal(new)
+	req, err := json.Marshal(newRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -65,13 +65,13 @@ func (r *GetTransactionListResponse) Count() int {
 }
 
 func (r Range) Transactions(c Client) (*GetTransactionListResponse, error) {
-	new := GetTransactionListRequest{
+	newRequest := GetTransactionListRequest{
 		GetTransactionList: GetTransactionList{
 			MerchantAuthentication: c.GetAuthentication(),
 			BatchID:                r.BatchId,
 		},
 	}
-	req, err := json.Marshal(new)
+	req, err := json.Marshal(newRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +82,13 @@ func (r Range) Transactions(c Client) (*GetTransactionListResponse, error) {
 }
 
 func (r Range) Statistics(c Client) (*Statistics, error) {
-	new := GetBatchStatisticsRequest{
+	newRequest := GetBatchStatisticsRequest{
 		GetBatchStatistics: GetBatchStatistics{
 			MerchantAuthentication: c.GetAuthentication(),
 			BatchID:                r.BatchId,
 		},
 	}
-	req, err := json.Marshal(new)
+	req, err := json.Marshal(newRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -99,12 +99,12 @@ func (r Range) Statistics(c Client) (*Statistics, error) {
 }
 
 func (c Client) GetMerchantDetails() (*MerchantDetailsResponse, error) {
-	new := GetMerchantDetailsRequest{
+	newRequest := GetMerchantDetailsRequest{
 		GetMerchantDetailsReq: GetMerchantDetailsReq{
 			MerchantAuthentication: c.GetAuthentication(),
 		},
 	}
-	req, err := json.Marshal(new)
+	req, err := json.Marshal(newRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -115,13 +115,13 @@ func (c Client) GetMerchantDetails() (*MerchantDetailsResponse, error) {
 }
 
 func (tranx PreviousTransaction) Info(c Client) (*FullTransaction, error) {
-	new := GetTransactionDetailsRequest{
+	newRequest := GetTransactionDetailsRequest{
 		GetTransactionDetails: GetTransactionDetails{
 			MerchantAuthentication: c.GetAuthentication(),
 			TransID:                tranx.RefId,
 		},
 	}
-	req, err := json.Marshal(new)
+	req, err := json.Marshal(newRequest)
 	if err != nil {
 		return nil, err
 	}

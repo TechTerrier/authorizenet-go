@@ -1,9 +1,11 @@
 package authorizenet
 
 import (
+	"fmt"
 	"math/rand"
 	"strconv"
 	"testing"
+	"time"
 )
 
 func TestCancelSubscription(t *testing.T) {
@@ -15,6 +17,7 @@ func TestCancelSubscription(t *testing.T) {
 	subscriptionInfo, err := sub.Cancel(client)
 	if err != nil {
 		t.Fail()
+		return
 	}
 
 	if subscriptionInfo.Ok() {
@@ -25,6 +28,21 @@ func TestCancelSubscription(t *testing.T) {
 		t.Fail()
 	}
 
+}
+
+func TestGetInactiveSubscriptionList(t *testing.T) {
+	subscriptionList, err := client.SubscriptionList("subscriptionInactive")
+	if err != nil {
+		t.Fail()
+		return
+	}
+
+	count := subscriptionList.Count()
+	t.Log("Amount of Inactive Subscriptions: ", count)
+
+	if count == 0 {
+		t.Fail()
+	}
 }
 
 func TestCancelSecondSubscription(t *testing.T) {
@@ -50,6 +68,10 @@ func TestCancelSecondSubscription(t *testing.T) {
 }
 
 func TestDeleteCustomerShippingProfile(t *testing.T) {
+
+	// Allow enough time for all the profiles to propagate.
+	time.Sleep(60 * time.Second)
+
 	customer := Customer{
 		ID:         newCustomerProfileId,
 		ShippingID: newCustomerShippingId,
@@ -95,6 +117,8 @@ func TestDeleteCustomerProfile(t *testing.T) {
 		ID: newCustomerProfileId,
 	}
 
+	t.Log("TestDeleteCustomerProfile - ID", newCustomerProfileId)
+
 	res, err := customer.DeleteProfile(client)
 	if err != nil {
 		t.Log(err)
@@ -111,7 +135,6 @@ func TestDeleteCustomerProfile(t *testing.T) {
 }
 
 func TestDeleteSecondCustomerProfile(t *testing.T) {
-
 	customer := Customer{
 		ID: newSecondCustomerProfileId,
 	}
@@ -132,9 +155,35 @@ func TestDeleteSecondCustomerProfile(t *testing.T) {
 }
 
 func TestDeclineTransaction(t *testing.T) {
+	nextMonthDate := time.Now().AddDate(0, 1, 0)
+	expiration := fmt.Sprintf("%s/%s", nextMonthDate.Format("01"), nextMonthDate.Format("06"))
+	randomTransId := RandomNumber(1000, 999999999)
+
+	newTransaction := NewTransaction{
+		RefTransId: randomTransId,
+		Amount:     "1201.00",
+		CreditCard: CreditCard{
+			CardNumber:     "4007000000027",
+			ExpirationDate: expiration,
+		},
+	}
+
+	resTrans, err := newTransaction.Charge(client)
+	if err != nil {
+		t.Log("Failed to perform charge.")
+		t.Fail()
+		return
+	}
+
+	if resTrans.Held() == false {
+		t.Log("The charge failed to go in held status.")
+		t.Fail()
+		return
+	}
+
 	oldTransaction := PreviousTransaction{
-		//Amount: "49.99",
-		RefId: heldTransactionId,
+		Amount: "1200.00",
+		RefId:  resTrans.TransactionID(),
 	}
 
 	res, err := oldTransaction.Decline(client)
