@@ -3,7 +3,7 @@ package authorizenet
 import (
 	"encoding/json"
 )
-
+//
 func (c *Client) GetPaymentProfileIds(month string, method string) (*GetCustomerPaymentProfileListResponse, error) {
 	action := GetCustomerPaymentProfileListRequest{
 		GetCustomerPaymentProfileList: GetCustomerPaymentProfileList{
