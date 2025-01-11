@@ -17,8 +17,8 @@ func init() {
 }
 
 func TestSetAPIInfo(t *testing.T) {
-	apiName := os.Getenv("apiName")
-	apiKey := os.Getenv("apiKey")
+	apiName := os.Getenv("API_NAME")
+	apiKey := os.Getenv("API_KEY")
 	client = *New(apiName, apiKey, true)
 	t.Log("API Info Set")
 }
