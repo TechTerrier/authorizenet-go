@@ -2,7 +2,6 @@ package authorizenet
 
 import (
 	"encoding/json"
-	"log"
 )
 
 func (tranx NewTransaction) Charge(c Client) (*TransactionResponse, error) {
@@ -125,7 +124,6 @@ func (c Client) SendTransactionRequest(input TransactionRequest) (*TransactionRe
 		return nil, err
 	}
 	res, err := c.SendRequest(req)
-	log.Println("Response: " + string(res))
 	var dat TransactionResponse
 	err = json.Unmarshal(res, &dat)
 	if err != nil {

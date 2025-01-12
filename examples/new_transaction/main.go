@@ -9,20 +9,20 @@ import (
 var newTransactionId string
 
 func main() {
+	apiName := os.Getenv("API_NAME")
+	apiKey := os.Getenv("API_KEY")
 
-	client := authorizenet.New(apiName, apiKey, true)
-
-	if client.IsConnected() {
-		fmt.Println("Connected to Authorize.net!")
+	if apiName == "" || apiKey == "" {
+		panic("API_KEY or API_NAME environment variable not set.")
 	}
-
-	client.ChargeCustomer()
-	client.VoidTransaction()
+	
+	client := *authorizenet.New(apiName, apiKey, true)
+	ChargeCustomer(client)
+	VoidTransaction(client)
 }
 
-func ChargeCustomer() {
-
-	newTransaction := client.NewTransaction{
+func ChargeCustomer(client authorizenet.Client) {
+	newTransaction := authorizenet.NewTransaction{
 		Amount: "13.75",
 		CreditCard: authorizenet.CreditCard{
 			CardNumber:     "4012888818888",
@@ -40,22 +40,32 @@ func ChargeCustomer() {
 			PhoneNumber: "8885555555",
 		},
 	}
-	res := newTransaction.Charge()
+	res, err := newTransaction.Charge(client)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
 	if res.Approved() {
 		newTransactionId = res.TransactionID()
 		fmt.Println("Transaction was Approved! #", res.TransactionID())
 	}
+
 }
 
-func VoidTransaction() {
+func VoidTransaction(client authorizenet.Client) {
 
-	newTransaction := client.PreviousTransaction{
+	newTransaction := authorizenet.PreviousTransaction{
 		RefId: newTransactionId,
 	}
-	res := newTransaction.Void()
+	res, err := newTransaction.Void(client)
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	if res.Approved() {
 		fmt.Println("Transaction was Voided!")
 	}
-
 }
