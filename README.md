@@ -1,6 +1,6 @@
 # Authorize.net CIM, AIM, and ARB for Go Language
 
-[![Build Status](https://travis-ci.org/hanzoai/authorizenet.svg?branch=master)](https://travis-ci.org/hanzoai/authorizenet)  [![Code Climate](https://lima.codeclimate.com/github/hanzoai/authorizenet/badges/gpa.svg)](https://lima.codeclimate.com/github/hanzoai/authorizenet) [![Coverage Status](https://coveralls.io/repos/github/hanzoai/authorizenet/badge.svg?branch=master)](https://coveralls.io/github/hanzoai/authorizenet?branch=master) [![GoDoc](https://godoc.org/github.com/hanzoai/authorizenet?status.svg)](https://godoc.org/github.com/hanzoai/authorizenet) [![Go Report Card](https://goreportcard.com/badge/github.com/hanzoai/authorizenet)](https://goreportcard.com/report/github.com/hanzoai/authorizenet)
+[![Build Status](https://github.com/TechTerrier/authorizenet-go/actions/workflows/go.yml/badge.svg)](https://github.com/TechTerrier/authorizenet-go/) [![GoDoc](https://godoc.org/github.com/TechTerrier/authorizenet-go?status.svg)](https://godoc.org/github.com/TechTerrier/authorizenet-go) [![Go Report Card](https://goreportcard.com/badge/github.com/TechTerrier/authorizenet-go)](https://goreportcard.com/report/github.com/TechTerrier/authorizenet-go)
 
 Give your Go Language applications the ability to store and retrieve credit cards from Authorize.net CIM, AIM, and ARB API.
 This golang package lets you create recurring subscriptions, AUTH only transactions, voids, refunds, and other functionality connected to the Authorize.net API.
