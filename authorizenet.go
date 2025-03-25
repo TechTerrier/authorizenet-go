@@ -3,7 +3,7 @@ package authorizenet
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 )
@@ -62,13 +62,16 @@ func (c *Client) GetAuthentication() MerchantAuthentication {
 
 func (c *Client) SendRequest(input []byte) ([]byte, error) {
 	req, err := http.NewRequest("POST", c.Endpoint, bytes.NewBuffer(input))
+	if err != nil {
+		return nil, err
+	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	body = bytes.TrimPrefix(body, []byte("\xef\xbb\xbf"))
 	if c.Verbose {
 		fmt.Println(string(body))
