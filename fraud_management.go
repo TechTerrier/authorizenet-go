@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (c Client) UnsettledBatchList() (*TransactionsList, error) {
+func (c *Client) UnsettledBatchList() (*TransactionsList, error) {
 	res, err := c.SendGetUnsettled()
 	return res, err
 }
@@ -75,7 +75,7 @@ type HeldTransactionRequest struct {
 	RefTransID string `json:"refTransId"`
 }
 
-func (c Client) SendTransactionUpdate(tranx PreviousTransaction, method string) (*TransactionResponse, error) {
+func (c *Client) SendTransactionUpdate(tranx PreviousTransaction, method string) (*TransactionResponse, error) {
 	action := UpdateHeldTransactionRequest{
 		UpdateHeldTransaction: UpdateHeldTransaction{
 			MerchantAuthentication: c.GetAuthentication(),
@@ -109,7 +109,7 @@ func (t PreviousTransaction) Decline(c Client) (*TransactionResponse, error) {
 	return res, err
 }
 
-func (c Client) SendGetUnsettled() (*TransactionsList, error) {
+func (c *Client) SendGetUnsettled() (*TransactionsList, error) {
 	action := UnsettledTransactionsRequest{
 		GetUnsettledTransactionListRequest: GetUnsettledTransactionListRequest{
 			MerchantAuthentication: c.GetAuthentication(),

@@ -32,11 +32,14 @@ func (r Range) SettledBatch(c Client) (*BatchListResponse, error) {
 	}
 	res, err := c.SendRequest(req)
 	var dat BatchListResponse
-	json.Unmarshal(res, &dat)
+	err = json.Unmarshal(res, &dat)
+	if err != nil {
+		return nil, err
+	}
 	return &dat, err
 }
 
-func (c Client) UnSettledBatch() (*UnsettledTransactionListResponse, error) {
+func (c *Client) UnSettledBatch() (*UnsettledTransactionListResponse, error) {
 	newRequest := GetUnsettledBatchTransactionListRequest{
 		GetUnsettledTransactionList: GetUnsettledTransactionList{
 			MerchantAuthentication: c.GetAuthentication(),
@@ -77,7 +80,10 @@ func (r Range) Transactions(c Client) (*GetTransactionListResponse, error) {
 	}
 	res, err := c.SendRequest(req)
 	var dat GetTransactionListResponse
-	json.Unmarshal(res, &dat)
+	err = json.Unmarshal(res, &dat)
+	if err != nil {
+		return nil, err
+	}
 	return &dat, err
 }
 
@@ -98,7 +104,7 @@ func (r Range) Statistics(c Client) (*Statistics, error) {
 	return &dat.Batch.Statistics[0], err
 }
 
-func (c Client) GetMerchantDetails() (*MerchantDetailsResponse, error) {
+func (c *Client) GetMerchantDetails() (*MerchantDetailsResponse, error) {
 	newRequest := GetMerchantDetailsRequest{
 		GetMerchantDetailsReq: GetMerchantDetailsReq{
 			MerchantAuthentication: c.GetAuthentication(),
@@ -114,11 +120,11 @@ func (c Client) GetMerchantDetails() (*MerchantDetailsResponse, error) {
 	return &dat, err
 }
 
-func (tranx PreviousTransaction) Info(c Client) (*FullTransaction, error) {
+func (t PreviousTransaction) Info(c Client) (*FullTransaction, error) {
 	newRequest := GetTransactionDetailsRequest{
 		GetTransactionDetails: GetTransactionDetails{
 			MerchantAuthentication: c.GetAuthentication(),
-			TransID:                tranx.RefId,
+			TransID:                t.RefId,
 		},
 	}
 	req, err := json.Marshal(newRequest)

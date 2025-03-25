@@ -3,8 +3,8 @@ package authorizenet
 import "time"
 
 func Now() time.Time {
-	current_time := time.Now().UTC()
-	return current_time
+	currentTime := time.Now().UTC()
+	return currentTime
 }
 
 func LastWeek() time.Time {

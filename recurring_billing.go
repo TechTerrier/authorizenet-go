@@ -129,7 +129,7 @@ type SubscriptionResponse struct {
 	} `json:"messages"`
 }
 
-func (c Client) SendSubscription(sub Subscription) (*SubscriptionResponse, error) {
+func (c *Client) SendSubscription(sub Subscription) (*SubscriptionResponse, error) {
 	action := CreateSubscriptionRequest{
 		ARBCreateSubscriptionRequest: ARBCreateSubscriptionRequest{
 			MerchantAuthentication: c.GetAuthentication(),
@@ -149,7 +149,7 @@ func (c Client) SendSubscription(sub Subscription) (*SubscriptionResponse, error
 	return &dat, err
 }
 
-func (c Client) UpdateSubscription(sub Subscription) (*SubscriptionResponse, error) {
+func (c *Client) UpdateSubscription(sub Subscription) (*SubscriptionResponse, error) {
 	action := UpdateSubscriptionRequest{
 		ARBUpdateSubscriptionRequest: ARBUpdateSubscriptionRequest{
 			MerchantAuthentication: c.GetAuthentication(),
@@ -245,7 +245,7 @@ func (sub SetSubscription) Cancel(c Client) (*SubscriptionCancel, error) {
 	return &dat, err
 }
 
-func (c Client) SubscriptionList(search string) (*GetSubscriptionList, error) {
+func (c *Client) SubscriptionList(search string) (*GetSubscriptionList, error) {
 	action := GetSubscriptionListRequest{
 		ARBGetSubscriptionListRequest: ARBGetSubscriptionListRequest{
 			MerchantAuthentication: c.GetAuthentication(),

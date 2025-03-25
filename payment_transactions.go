@@ -63,21 +63,21 @@ func (tranx NewTransaction) Refund(c Client) (*TransactionResponse, error) {
 	return res, err
 }
 
-func (tranx PreviousTransaction) Void(c Client) (*TransactionResponse, error) {
+func (t PreviousTransaction) Void(c Client) (*TransactionResponse, error) {
 	var newTransactionRequest TransactionRequest
 	newTransactionRequest = TransactionRequest{
 		TransactionType: "voidTransaction",
-		RefTransId:      tranx.RefId,
+		RefTransId:      t.RefId,
 	}
 	res, err := c.SendTransactionRequest(newTransactionRequest)
 	return res, err
 }
 
-func (tranx PreviousTransaction) Capture(c Client) (*TransactionResponse, error) {
+func (t PreviousTransaction) Capture(c Client) (*TransactionResponse, error) {
 	var newTransactionRequest TransactionRequest
 	newTransactionRequest = TransactionRequest{
 		TransactionType: "priorAuthCaptureTransaction",
-		RefTransId:      tranx.RefId,
+		RefTransId:      t.RefId,
 	}
 	res, err := c.SendTransactionRequest(newTransactionRequest)
 	return res, err
@@ -111,7 +111,7 @@ func GetHostedPaymentPage() {
 
 }
 
-func (c Client) SendTransactionRequest(input TransactionRequest) (*TransactionResponse, error) {
+func (c *Client) SendTransactionRequest(input TransactionRequest) (*TransactionResponse, error) {
 	action := CreatePayment{
 		CreateTransactionRequest: CreateTransactionRequest{
 			MerchantAuthentication: c.GetAuthentication(),
